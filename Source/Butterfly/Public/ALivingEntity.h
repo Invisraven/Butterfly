@@ -27,6 +27,9 @@ public:
 	// Reproduction logic
 	void TryReproduce();
 
+	UFUNCTION(BlueprintCallable, Category = "Grow")
+	void Grow();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -47,6 +50,31 @@ public:
 	FVector OldLocation;
 
 	int32 LastReproduction;
+	int32* YearsValue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grow")
+	int32 VisibilityOfFirstEvolution;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grow")
+	UStaticMeshComponent* FirstEvolution;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grow")
+	int32 VisibilityOfSecondEvolution;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grow")
+	UStaticMeshComponent *SecondEvolution;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grow")
+	int32 VisibilityOfThirdEvolution;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grow")
+	UStaticMeshComponent *ThirdEvolution;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grow")
+	int32 VisibilityOfFourEvolution;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Grow")
+	UStaticMeshComponent *FourEvolution;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Reproduction")
 	TSubclassOf<AActor> ChildClass; // Class of the entity to spawn

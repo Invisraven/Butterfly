@@ -31,14 +31,11 @@ void AALivingEntity::BeginPlay()
         if (Property)
         {
             // Pøedpokládejme, že Years je typu int32
-            int32* YearsValue = Property->ContainerPtrToValuePtr<int32>(GameMode);
+            YearsValue = Property->ContainerPtrToValuePtr<int32>(GameMode);
             LastReproduction = *YearsValue;
         }
     }
-    else
-    {
-        GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("GameMode nebyl nalezen nebo není typu AGameModeBase!"));
-    }
+
 
 }
 
@@ -50,21 +47,18 @@ void AALivingEntity::Tick(float DeltaTime)
     if (Property)
       {
         // Pøedpokládejme, že Years je typu int32
-        int32* YearsValue = Property->ContainerPtrToValuePtr<int32>(GameMode);
+        YearsValue = Property->ContainerPtrToValuePtr<int32>(GameMode);
         if (YearsValue)
         {
            
            if (LastReproduction < *YearsValue)
            {
                 TryReproduce();
+                Grow();
                 LastReproduction = *YearsValue;
            }
         }
       }
-    else
-    {
-      GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("Promìnná 'Years' nebyla nalezena v GameMode!"));
-    }
    
 
 }
@@ -79,6 +73,50 @@ void AALivingEntity::TryReproduce()
     {
         Reproduce();
     }
+}
+
+void AALivingEntity::Grow()
+{
+    
+
+    if (*YearsValue <= VisibilityOfFirstEvolution)
+    {
+        FirstEvolution ->SetVisibility(true);
+        SecondEvolution->SetVisibility(false);
+        ThirdEvolution->SetVisibility(false);
+        FourEvolution->SetVisibility(false);
+    }
+    else if (VisibilityOfFirstEvolution <=*YearsValue && *YearsValue <= VisibilityOfSecondEvolution)
+    {
+        FirstEvolution->SetVisibility(false);
+        SecondEvolution->SetVisibility(true);
+        ThirdEvolution->SetVisibility(false);
+        FourEvolution->SetVisibility(false);
+    }
+    else if (VisibilityOfSecondEvolution <= *YearsValue && *YearsValue <= VisibilityOfThirdEvolution)
+    {
+        FirstEvolution->SetVisibility(false);
+        SecondEvolution->SetVisibility(false);
+        ThirdEvolution->SetVisibility(true);
+        FourEvolution->SetVisibility(false);
+    }
+    else if (VisibilityOfThirdEvolution <= *YearsValue && *YearsValue <= VisibilityOfFourEvolution)
+    {
+        FirstEvolution->SetVisibility(false);
+        SecondEvolution->SetVisibility(false);
+        ThirdEvolution->SetVisibility(false);
+        FourEvolution->SetVisibility(true);
+    }
+    else if (VisibilityOfFourEvolution >= *YearsValue)
+    {
+        FirstEvolution->SetVisibility(false);
+        SecondEvolution->SetVisibility(false);
+        ThirdEvolution->SetVisibility(false);
+        FourEvolution->SetVisibility(false);
+    }
+    
+
+
 }
 
 void AALivingEntity::Reproduce()
@@ -114,12 +152,6 @@ void AALivingEntity::Reproduce()
 
         AActor* NewEntity = GetWorld()->SpawnActor<AActor>(ChildClass, SpawnLocation, FRotator::ZeroRotator, SpawnParams);
 
-        // Pøidej debug zprávu
-       /* if (NewEntity && GEngine)
-        {
-            GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, TEXT("New entity spawned!"));
-        }
-        */
     }
 }
 
