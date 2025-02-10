@@ -6,33 +6,32 @@
 #include "GameFramework/GameModeBase.h"
 #include "GameFramework/Actor.h"
 #include "Kismet/GameplayStatics.h"
+//#include "TextureBuildSettings.h"
+
 
 // Sets default values
 AALivingEntity::AALivingEntity()
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
     PrimaryActorTick.bCanEverTick = true;
-    ReproductionChance = 0.01f;  // 1% chance per tick
-    ReproductionRadius = 500.0f; // Radius for spawning children
-
+    
 }
 
 // Called when the game starts or when spawned
 void AALivingEntity::BeginPlay()
 {
     Super::BeginPlay();
-   
+
+
     GameMode = UGameplayStatics::GetGameMode(GetWorld());
     if (GameMode)
     {
-        // Zde pøedpokládáme, že promìnná "Years" existuje v Blueprint GameMode
         // Pøístup k promìnné pøes reflection systém Unreal Engine
         Property = GameMode->GetClass()->FindPropertyByName(FName("CurrentYear"));
         if (Property)
         {
-            // Pøedpokládejme, že Years je typu int32
-            YearsValue = Property->ContainerPtrToValuePtr<int32>(GameMode);
-            LastReproduction = *YearsValue;
+            YearOfBorn = *Property->ContainerPtrToValuePtr<int32>(GameMode);
+            LastReproduction = 0;
         }
     }
 
@@ -44,18 +43,20 @@ void AALivingEntity::BeginPlay()
 void AALivingEntity::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
     if (Property)
       {
         // Pøedpokládejme, že Years je typu int32
         YearsValue = Property->ContainerPtrToValuePtr<int32>(GameMode);
+        Age = *YearsValue - YearOfBorn;
         if (YearsValue)
         {
            
-           if (LastReproduction < *YearsValue)
+           if (LastReproduction < Age)
            {
                 TryReproduce();
                 Grow();
-                LastReproduction = *YearsValue;
+               LastReproduction = Age;
            }
         }
       }
@@ -77,37 +78,41 @@ void AALivingEntity::TryReproduce()
 
 void AALivingEntity::Grow()
 {
-    
-
-    if (*YearsValue <= VisibilityOfFirstEvolution)
+    if (!FirstEvolution || !SecondEvolution || !ThirdEvolution || !FourEvolution)
     {
-        FirstEvolution ->SetVisibility(true);
+        UE_LOG(LogTemp, Error, TEXT("One or more meshes are nullptr!"));
+        return;
+    }
+
+    if (Age <= VisibilityOfFirstEvolution)
+    {   
+        FirstEvolution->SetVisibility(true);   
         SecondEvolution->SetVisibility(false);
         ThirdEvolution->SetVisibility(false);
         FourEvolution->SetVisibility(false);
     }
-    else if (VisibilityOfFirstEvolution <=*YearsValue && *YearsValue <= VisibilityOfSecondEvolution)
+    else if (VisibilityOfFirstEvolution <= Age && Age <= VisibilityOfSecondEvolution)
     {
         FirstEvolution->SetVisibility(false);
         SecondEvolution->SetVisibility(true);
         ThirdEvolution->SetVisibility(false);
         FourEvolution->SetVisibility(false);
     }
-    else if (VisibilityOfSecondEvolution <= *YearsValue && *YearsValue <= VisibilityOfThirdEvolution)
+    else if (VisibilityOfSecondEvolution <= Age && Age <= VisibilityOfThirdEvolution)
     {
         FirstEvolution->SetVisibility(false);
         SecondEvolution->SetVisibility(false);
         ThirdEvolution->SetVisibility(true);
         FourEvolution->SetVisibility(false);
     }
-    else if (VisibilityOfThirdEvolution <= *YearsValue && *YearsValue <= VisibilityOfFourEvolution)
+    else if (VisibilityOfThirdEvolution <= Age && Age <= VisibilityOfFourEvolution)
     {
         FirstEvolution->SetVisibility(false);
         SecondEvolution->SetVisibility(false);
         ThirdEvolution->SetVisibility(false);
         FourEvolution->SetVisibility(true);
     }
-    else if (VisibilityOfFourEvolution >= *YearsValue)
+    else if (VisibilityOfFourEvolution >= Age)
     {
         FirstEvolution->SetVisibility(false);
         SecondEvolution->SetVisibility(false);

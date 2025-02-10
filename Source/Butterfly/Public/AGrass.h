@@ -15,7 +15,10 @@ class BUTTERFLY_API AAGrass : public AALivingEntity
 	GENERATED_BODY()
 public:
 	// Constructor
-	void AGrass();
+	AAGrass();
+
+	//void BeginPlay();
+
 	
 };
 
